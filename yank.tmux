@@ -49,6 +49,7 @@ set_copy_mode_bindings() {
         tmux bind-key -T copy-mode-vi "$(yank_wo_newline_key)" send-keys -X "$(yank_action)" "$copy_wo_newline_command"
         if [[ "$(yank_with_mouse)" == "on" ]]; then
             tmux bind-key -T copy-mode-vi MouseDragEnd1Pane send-keys -X "$(yank_action)" "$copy_command_mouse"
+            tmux bind-key -T copy-mode-vi DoubleClick1Pane send-keys -X select-word \; send-keys -X "$(yank_action)" "$copy_command_mouse"
         fi
 
         tmux bind-key -T copy-mode "$(yank_key)" send-keys -X "$(yank_action)" "$copy_command"
@@ -57,6 +58,7 @@ set_copy_mode_bindings() {
         tmux bind-key -T copy-mode "$(yank_wo_newline_key)" send-keys -X "$(yank_action)" "$copy_wo_newline_command"
         if [[ "$(yank_with_mouse)" == "on" ]]; then
             tmux bind-key -T copy-mode MouseDragEnd1Pane send-keys -X "$(yank_action)" "$copy_command_mouse"
+            tmux bind-key -T copy-mode DoubleClick1Pane send-keys -X select-word \; send-keys -X "$(yank_action)" "$copy_command_mouse"
         fi
     else
         tmux bind-key -t vi-copy "$(yank_key)" copy-pipe "$copy_command"
@@ -65,6 +67,7 @@ set_copy_mode_bindings() {
         tmux bind-key -t vi-copy "$(yank_wo_newline_key)" copy-pipe "$copy_wo_newline_command"
         if [[ "$(yank_with_mouse)" == "on" ]]; then
             tmux bind-key -t vi-copy MouseDragEnd1Pane copy-pipe "$copy_command_mouse"
+            tmux bind-key -t vi-copy DoubleClick1Pane copy-pipe "$copy_command_mouse"
         fi
 
         tmux bind-key -t emacs-copy "$(yank_key)" copy-pipe "$copy_command"
@@ -73,6 +76,7 @@ set_copy_mode_bindings() {
         tmux bind-key -t emacs-copy "$(yank_wo_newline_key)" copy-pipe "$copy_wo_newline_command"
         if [[ "$(yank_with_mouse)" == "on" ]]; then
             tmux bind-key -t emacs-copy MouseDragEnd1Pane copy-pipe "$copy_command_mouse"
+            tmux bind-key -t emacs-copy DoubleClick1Pane copy-pipe "$copy_command_mouse"
         fi
     fi
 }
@@ -80,6 +84,11 @@ set_copy_mode_bindings() {
 set_normal_bindings() {
     tmux bind-key "$(yank_line_key)" run-shell -b "$SCRIPTS_DIR/copy_line.sh"
     tmux bind-key "$(yank_pane_pwd_key)" run-shell -b "$SCRIPTS_DIR/copy_pane_pwd.sh"
+    if [[ "$(yank_with_mouse)" == "on" ]]; then
+        local copy_command_mouse
+        copy_command_mouse="$(clipboard_copy_command "true")"
+        tmux bind-key -n DoubleClick1Pane select-pane -t= \; copy-mode -M \; send-keys -X select-word \; send-keys -X "$(yank_action)" "$copy_command_mouse"
+    fi
 }
 
 main() {
